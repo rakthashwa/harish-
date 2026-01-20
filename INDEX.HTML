@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Snatcher Harish - Professional Snake Catching & Protection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f4f4;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes snakeBite {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .page {
+            animation: fadeInUp 0.6s ease-out;
+            display: none;
+            min-height: 100vh;
+            background: white;
+        }
+        
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .snake-card {
+            animation: slideInRight 0.5s ease-out backwards;
+        }
+        
+        .snake-card:nth-child(n) { animation-delay: calc(0.1s * var(--index)); }
+        
+        .snake-icon {
+            animation: snakeBite 1.5s infinite;
+            display: inline-block;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        /* Gallery Styles */
+        .gallery-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .gallery-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #1a472a;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .gallery-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .gallery-item-info {
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        
+        .gallery-item-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a472a;
+            margin-bottom: 5px;
+        }
+        
+        .gallery-item-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+        
+        .modal img {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+        
+        .nav-container {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        nav a:hover {
+            color: #a8dadc;
+        }
+        
+        .lang-toggle {
+            background: #f4a261;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .lang-toggle:hover {
+            background: #e76f51;
+        }
+        
+        .snake-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+        }
+        
+        .video-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .video-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .video-card video {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border: none;
+        }
+        
+        .video-info {
+            padding: 15px;
+        }
+        
+        .video-info h3 {
+            color: #2d6a4f;
+            margin-bottom: 10px;
+        }
+        
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .testimonial {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 4px solid #f4a261;
+        }
+        
+        .testimonial p {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+            color: #2d6a4f;
+        }
+        
+        .news-section {
+            margin-top: 50px;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .news-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-left: 4px solid #e74c3c;
+            transition: 0.3s;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .news-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 15px;
+        }
+        
+        .news-header h3 {
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .news-date {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .news-content {
+            padding: 15px;
+        }
+        
+        .law-section {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .law-section h3 {
+            color: #1a472a;
+            margin-bottom: 20px;
+        }
+        
+        .law-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .law-item h4 {
+            color: #2d6a4f;
+            margin-bottom: 10px;
+        }
+        
+        .law-item p {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .booking-form {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a472a;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2d6a4f;
+            box-shadow: 0 0 5px rgba(45, 106, 79, 0.3);
+        }
+        
+        .snake-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .snake-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        
+        .snake-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .snake-header {
+            background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+            color: white;
+            padding: 20px;
+        }
+        
+        .snake-header h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .snake-content {
+            padding: 20px;
+        }
+        
+        .snake-info {
+            margin-bottom: 15px;
+        }
+        
+        .snake-label {
+            font-weight: bold;
+            color: #2d6a4f;
+            display: inline-block;
+            min-width: 100px;
+        }
+        
+        .danger-level {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .danger-high {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .danger-medium {
+            background: #ffd43b;
+            color: #333;
+        }
+        
+        .danger-low {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #f4a261;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background: #e76f51;
+            animation: pulse 0.3s;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 60px 0;
+            flex: 1;
+        }
+        
+        .services {
+            background: #f9f9f9;
+            flex: 1;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 50px;
+            color: #1a472a;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .service-card h3 {
+            color: #2d6a4f;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .service-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .about {
+            background: white;
+            flex: 1;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .about-text h2 {
+            color: #1a472a;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .about-text h3 {
+            color: #1a472a;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        
+        .about-text p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .about-image {
+            background: #e8f5e9;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 60px;
+        }
+        
+        footer {
+            background: #0d2818;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 15px;
+                font-size: 14px;
+            }
+            
+            .nav-container {
+                gap: 10px;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Image Gallery Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="" alt="Snake Gallery Image">
+            <div id="modalInfo"></div>
+        </div>
+    </div>
+    
+    <header>
+        <nav>
+            <div class="logo">🐍 Snake Snatcher Harish</div>
+            <div class="nav-container">
+                <ul>
+                    <li><a onclick="showPage('home')">Home</a></li>
+                    <li><a onclick="showPage('services')">Services</a></li>
+                    <li><a onclick="showPage('history')">History</a></li>
+                    <li><a onclick="showPage('snakes')">Snakes Info</a></li>
+                    <li><a onclick="showPage('booking')">Booking</a></li>
+                    <li><a onclick="showPage('about')">About</a></li>
+                </ul>
+                <button class="lang-toggle" onclick="toggleLanguage()">
+                    <span id="langBtn">ಕನ್ನಡ</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- HOME PAGE -->
+    <div id="home" class="page active">
+        <section class="hero">
+            <div class="container">
+                <h1 id="h1-title">Snake Snatcher Harish</h1>
+                <p id="p-subtitle1">Professional Snake Catching & Protection Services</p>
+                <p id="p-subtitle2">Safe, Reliable, Expert Snake Removal & Prevention</p>
+                <button class="btn" id="btn-emergency" onclick="showPage('booking')">Call Now for Emergency Service</button>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- SERVICES PAGE -->
+    <div id="services" class="page">
+        <section class="services">
+            <div class="container">
+                <h2 class="section-title" id="h2-services">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>🐍 <span id="service-catch">Snake Catching</span></h3>
+                        <p id="p-catch">Professional and safe removal of snakes from homes, gardens, and commercial properties.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>🛡️ <span id="service-protect">Snake Protection</span></h3>
+                        <p id="p-protect">Preventive measures and protection systems to keep your property snake-free.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>🔍 <span id="service-prevent">Snake Prevention</span></h3>
+                        <p id="p-prevent">Expert advice on identifying snake habitats and implementing preventive measures.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>🏠 <span id="service-assess">Property Assessment</span></h3>
+                        <p id="p-assess">Comprehensive inspection of your property to identify potential snake entry points.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>⚡ <span id="service-emergency">Emergency Response</span></h3>
+                        <p id="p-emergency">24/7 emergency snake catching service with quick response times.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>📚 <span id="service-education">Education & Awareness</span></h3>
+                        <p id="p-education">Snake behavior education and awareness programs for families and businesses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- HISTORY PAGE -->
+    <div id="history" class="page">
+        <section class="about">
+            <div class="container">
+                <h2 class="section-title" id="h2-history">Harish's History & Proof</h2>
+                
+                <div class="about-content" style="margin-bottom: 50px;">
+                    <div class="about-text">
+                        <h3 id="h3-experience">Experience & Background</h3>
+                        <p id="p-exp-intro">With over a decade of experience in professional snake catching, Harish is the most trusted name in the region.</p>
+                        <p id="p-exp-detail1">We specialize in safe, humane, and effective snake removal and protection services.</p>
+                        <p id="p-exp-achievements">
+                            <strong id="strong-achievements">✓ Experienced Professionals</strong><br>
+                            <strong id="strong-humane">✓ Humane Snake Removal</strong><br>
+                            <strong id="strong-emergency">✓ 24/7 Emergency Service</strong><br>
+                            <strong id="strong-trusted">✓ Trusted by 1000+ Families</strong>
+                        </p>
+                    </div>
+                    <div class="about-image">🐍</div>
+                </div>
+                
+                <h3 class="section-title" id="h3-videos">Video Proof of Services</h3>
+                <div class="video-gallery">
+                    <div class="video-card">
+                        <video controls>
+                            <source src="videsod/video1.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-info">
+                            <h3 id="v-title1">Snake Removal - Residential</h3>
+                            <p id="v-desc1">Safe removal from home</p>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <video controls>
+                            <source src="videsod/video2.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-info">
+                            <h3 id="v-title2">Professional Handling</h3>
+                            <p id="v-desc2">Expert snake catching technique</p>
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <video controls style="background: #f0f0f0;">
+                            <source src="videsod/video3.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-info">
+                            <h3 id="v-title3">Safe Relocation</h3>
+                            <p id="v-desc3">Releasing snake in natural habitat</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" id="h3-testimonials">Customer Testimonials</h3>
+                <div class="testimonials">
+                    <div class="testimonial">
+                        <p id="test-1">"Harish was incredibly professional and quick. Highly recommended!"</p>
+                        <div class="testimonial-author" id="test-author-1">- Rajesh Kumar, Bangalore</div>
+                    </div>
+                    <div class="testimonial">
+                        <p id="test-2">"Best snake catcher in the city. Very safe and trustworthy."</p>
+                        <div class="testimonial-author" id="test-author-2">- Priya Sharma, Mysore</div>
+                    </div>
+                    <div class="testimonial">
+                        <p id="test-3">"Excellent service! Also gave us valuable advice on prevention."</p>
+                        <div class="testimonial-author" id="test-author-3">- Amit Gupta, Belgaum</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- SNAKES INFORMATION PAGE -->
+    <div id="snakes" class="page">
+        <section class="services">
+            <div class="container">
+                <h2 class="section-title" id="h2-snakes">Indian Snakes Information</h2>
+                <div class="snake-grid" id="snakeGrid"></div>
+                
+                <div class="news-section">
+                    <h3 class="section-title" id="h3-news">Recent Snake Bite News & Statistics</h3>
+                    <div class="news-grid">
+                        <div class="news-card">
+                            <div class="news-header">
+                                <h3 id="news-1-title">⚠️ Critical Alert - Snake Bite Deaths</h3>
+                                <div class="news-date" id="news-1-date">January 2026</div>
+                            </div>
+                            <div class="news-content">
+                                <p id="news-1-content">According to WHO, approximately 50,000 people die annually from snake bites in India.</p>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="news-header">
+                                <h3 id="news-2-title">🏥 Snake Bite Treatment Update</h3>
+                                <div class="news-date" id="news-2-date">January 2026</div>
+                            </div>
+                            <div class="news-content">
+                                <p id="news-2-content">Modern anti-venom has improved survival rates to 95%. Get professional medical help immediately.</p>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="news-header">
+                                <h3 id="news-3-title">📊 Safety Statistics</h3>
+                                <div class="news-date" id="news-3-date">2025 Report</div>
+                            </div>
+                            <div class="news-content">
+                                <p id="news-3-content">70% of snake bites occur in rural areas during monsoon season. Prevention is better than cure.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="law-section">
+                    <h3 id="h3-law">Indian Wildlife Laws & Snake Bite Protocol</h3>
+                    <div class="law-item">
+                        <h4 id="h4-law1">🛡️ Wildlife Protection Act, 1972</h4>
+                        <p id="p-law1">Killing snakes is illegal in India. All snakes are safely captured and relocated to natural habitats.</p>
+                    </div>
+                    <div class="law-item">
+                        <h4 id="h4-law2">⚖️ Legal Responsibility</h4>
+                        <p id="p-law2">Professional snake removal services protect you legally and physically.</p>
+                    </div>
+                    <div class="law-item">
+                        <h4 id="h4-law3">🏥 Medical Protocol</h4>
+                        <p id="p-law3">All snake bite cases must be reported within 30 minutes. Anti-venom is free in government hospitals.</p>
+                    </div>
+                    <div class="law-item">
+                        <h4 id="h4-law4">📱 First Aid for Snake Bites</h4>
+                        <p id="p-law4">Remove jewelry. Keep bitten area still. Do NOT cut or suck bite. Rush to hospital immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- BOOKING PAGE -->
+    <div id="booking" class="page">
+        <section class="about">
+            <div class="container">
+                <h2 class="section-title" id="h2-booking">Book Your Service</h2>
+                <div class="booking-form">
+                    <form onsubmit="return handleBooking(event)">
+                        <div class="form-group">
+                            <label for="name" id="label-name">Full Name</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" id="label-phone">Phone Number</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" id="label-email">Email Address</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="instagram" id="label-instagram">Instagram ID</label>
+                            <input type="text" id="instagram" placeholder="@yourinstagram">
+                        </div>
+                        <div class="form-group">
+                            <label for="location" id="label-location">Location/Address</label>
+                            <textarea id="location" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="issue" id="label-issue">Type of Issue</label>
+                            <select id="issue" required>
+                                <option value="">Select...</option>
+                                <option id="opt-snake-sighting" value="Snake Sighting">Snake Sighting</option>
+                                <option id="opt-emergency" value="Emergency">Emergency</option>
+                                <option id="opt-prevention" value="Prevention Services">Prevention Services</option>
+                                <option id="opt-assessment" value="Property Assessment">Property Assessment</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date" id="label-date">Preferred Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="time" id="label-time">Preferred Time</label>
+                            <select id="time" required>
+                                <option value="">Select...</option>
+                                <option id="opt-morning" value="Morning (6-12)">Morning (6-12)</option>
+                                <option id="opt-afternoon" value="Afternoon (12-6)">Afternoon (12-6)</option>
+                                <option id="opt-evening" value="Evening (6-10)">Evening (6-10)</option>
+                                <option id="opt-emergency-24" value="Emergency 24/7">Emergency 24/7</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description" id="label-description">Detailed Description</label>
+                            <textarea id="description" placeholder="Describe the snake and situation..."></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; font-size: 16px; padding: 15px;">
+                            <span id="btn-submit">📱 Send to WhatsApp</span>
+                        </button>
+                    </form>
+                </div>
+                <div style="margin-top: 50px; text-align: center;">
+                    <h3 id="h3-emergency-contact">Emergency Contact</h3>
+                    <p id="p-emergency-24">Available 24/7 for emergencies</p>
+                    <h2 style="color: #2d6a4f; font-size: 32px; margin-top: 15px;">📞 +91 9945543806</h2>
+                    <p style="margin-top: 15px; color: #666;">📱 WhatsApp: <a href="https://wa.me/919945543806" style="color: #2d6a4f; text-decoration: none; font-weight: bold;">Click to chat on WhatsApp</a></p>
+                    <p style="margin-top: 10px; color: #666;">📸 Instagram: <a href="https://www.instagram.com/snake_rescuer_harishrajkumara" style="color: #2d6a4f; text-decoration: none; font-weight: bold;">@snake_rescuer_harishrajkumara</a></p>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- ABOUT PAGE -->
+    <div id="about" class="page">
+        <section class="about">
+            <div class="container">
+                <h2 class="section-title" id="h2-about">About Us</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3 id="h3-about">Professional Snake Management Expert</h3>
+                        <p id="p-about-1">We provide professional, humane, and efficient snake removal and protection services.</p>
+                        <p id="p-about-2">Our team is trained in the latest techniques to safely capture and relocate snakes.</p>
+                        <p id="p-about-3">Trusted choice for thousands of families across the region.</p>
+                        <h3 id="h3-why-choose" style="margin-top: 30px;">Why Choose Us?</h3>
+                        <ul style="margin-left: 20px; margin-top: 15px;">
+                            <li id="li-professional">✓ Professional & Trained Staff</li>
+                            <li id="li-24-7">✓ 24/7 Emergency Services</li>
+                            <li id="li-humane">✓ Humane Snake Handling</li>
+                            <li id="li-quick">✓ Quick Response Time</li>
+                            <li id="li-affordable">✓ Affordable Rates</li>
+                            <li id="li-guarantee">✓ Safety Guarantee</li>
+                        </ul>
+                    </div>
+                    <div class="about-image">🐍🛡️</div>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p id="footer-text">&copy; 2026 Snake Snatcher Harish. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        let currentLanguage = 'en';
+        
+        const snakes = [
+            {
+                name: 'India Cobra',
+                image: 'images/india-cobra.webp',
+                danger: 'HIGHLY VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Naja naja',
+                kannada: 'ನಾಗರ ಹಾವು',
+                color: 'Variable: brown, black, tan, or grey with hood markings',
+                length: '3-7 feet (varies by region)',
+                info: 'Also called Spectacled Cobra. Distinctive eye-like hood marking. Most deadly of Big Four snakes. Neurotoxic venom causes paralysis.'
+            },
+            {
+                name: "Spectacled Cobra",
+                image: 'images/spectacled-cobra.webp',
+                danger: 'HIGHLY VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Naja naja',
+                kannada: 'ಮಾರ್ಕಿಂಗ ನಾಗ',
+                color: 'Brown with spectacle markings',
+                length: '4-6 feet',
+                info: 'Distinctive eye markings on hood. Highly venomous neurotoxin.'
+            },
+            {
+                name: 'Common Krait',
+                image: 'images/common-krait.webp',
+                danger: 'HIGHLY VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Bungarus caeruleus',
+                kannada: 'ನೀಲ ಕ್ರೇತ',
+                color: 'Black with white bands',
+                length: '2-3.5 feet',
+                info: 'Nocturnal, deadly neurotoxin. One of the Big Four snakes.'
+            },
+            {
+                name: 'Indian Rat Snake',
+                image: 'images/india-rat-snake.webp',
+                danger: 'NON-VENOMOUS',
+                dangerClass: 'danger-low',
+                scientific: 'Ptyas mucosus',
+                kannada: 'ಇದೆ ಹಾವು',
+                color: 'Olive brown/yellow',
+                length: '4-6 feet',
+                info: 'Beneficial snake that controls rodent population. Safe to coexist.'
+            },
+            {
+                name: 'Indian Python',
+                image: 'images/india-python.webp',
+                danger: 'NON-VENOMOUS',
+                dangerClass: 'danger-low',
+                scientific: 'Python molurus',
+                kannada: 'ನೋಮಾ ಸರ್ಪ',
+                color: 'Brown with darker markings',
+                length: '5-7 feet',
+                info: 'Constrictor, mostly docile and non-aggressive. Protected species.'
+            },
+            {
+                name: 'Saw-scaled Viper',
+                image: 'images/saw-scaled-viper.webp',
+                danger: 'HIGHLY VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Echis carinatus',
+                kannada: 'ಚೂರೆ ಹಾವು',
+                color: 'Brown/tan',
+                length: '1.5-2 feet',
+                info: 'Smallest but aggressive. Responsible for many deaths. Part of Big Four.'
+            },
+            {
+                name: 'Green Pit Viper',
+                image: 'images/green-pit-viper.webp',
+                danger: 'VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Trimeresurus gramineus',
+                kannada: 'ಹರಿದ ಸರ್ಪ',
+                color: 'Bright green',
+                length: '2-2.5 feet',
+                info: 'Found in trees, perfectly camouflaged. Hemotoxic venom.'
+            },
+            {
+                name: 'Banded Krait',
+                image: 'images/banded-krait.webp',
+                danger: 'HIGHLY VENOMOUS',
+                dangerClass: 'danger-high',
+                scientific: 'Bungarus fasciatus',
+                kannada: 'ಬ್ಯಾಂಡ್ಡ್ ಕ್ರೇತ',
+                color: 'Yellow and black bands',
+                length: '3-4 feet',
+                info: 'Beautiful but extremely dangerous. Nocturnal. Deadly neurotoxin.'
+            },
+            {
+                name: 'Snake Gallery',
+                image: 'images/gallery.webp',
+                danger: 'INFORMATION',
+                dangerClass: 'danger-low',
+                scientific: 'Collection',
+                kannada: 'ಸಂಗ್ರಹ',
+                color: 'Various colors',
+                length: 'Varies',
+                info: 'Complete gallery of Indian snakes with detailed information.'
+            }
+        ];
+        
+        const translations = {
+            en: {
+                'langBtn': 'ಕನ್ನಡ',
+                'h1-title': 'Snake Snatcher Harish',
+                'p-subtitle1': 'Professional Snake Catching & Protection Services',
+                'p-subtitle2': 'Safe, Reliable, Expert Snake Removal & Prevention',
+                'btn-emergency': 'Call Now for Emergency Service',
+                'h2-services': 'Our Services',
+                'service-catch': 'Snake Catching',
+                'p-catch': 'Professional and safe removal from homes, gardens, and commercial properties.',
+                'service-protect': 'Snake Protection',
+                'p-protect': 'Preventive measures to keep your property snake-free.',
+                'service-prevent': 'Snake Prevention',
+                'p-prevent': 'Expert advice on snake habitats and preventive measures.',
+                'service-assess': 'Property Assessment',
+                'p-assess': 'Comprehensive inspection for potential snake entry points.',
+                'service-emergency': 'Emergency Response',
+                'p-emergency': '24/7 emergency service. Quick response times.',
+                'service-education': 'Education & Awareness',
+                'p-education': 'Snake behavior programs for safe coexistence.',
+                'h2-history': "Harish's History & Proof",
+                'h3-experience': 'Experience & Background',
+                'p-exp-intro': 'Over a decade of professional snake catching experience.',
+                'p-exp-detail1': 'Safe, humane, and effective removal services.',
+                'strong-achievements': '✓ Experienced Professionals',
+                'strong-humane': '✓ Humane Snake Removal',
+                'strong-emergency': '✓ 24/7 Emergency Service',
+                'strong-trusted': '✓ Trusted by 1000+ Families',
+                'h3-videos': 'Video Proof of Services',
+                'v-title1': 'Snake Removal - Residential',
+                'v-desc1': 'Safe removal from home',
+                'v-title2': 'Professional Handling',
+                'v-desc2': 'Expert catching technique',
+                'v-title3': 'Safe Relocation',
+                'v-desc3': 'Release in natural habitat',
+                'h3-testimonials': 'Customer Testimonials',
+                'h2-snakes': 'Indian Snakes Information',
+                'h3-news': 'Snake Bite News & Statistics',
+                'news-1-title': '⚠️ Snake Bite Deaths',
+                'news-2-title': '🏥 Treatment Update',
+                'news-3-title': '📊 Safety Statistics',
+                'h3-law': 'Indian Wildlife Laws',
+                'h4-law1': '🛡️ Wildlife Protection Act, 1972',
+                'p-law1': 'Killing snakes is illegal. Snakes are safely relocated.',
+                'h4-law2': '⚖️ Legal Responsibility',
+                'p-law2': 'Professional services protect you legally and physically.',
+                'h4-law3': '🏥 Medical Protocol',
+                'p-law3': 'Report within 30 minutes. Free anti-venom in hospitals.',
+                'h4-law4': '📱 First Aid',
+                'p-law4': 'Remove jewelry. Keep still. Rush to hospital.',
+                'h2-booking': 'Book Your Service',
+                'label-name': 'Full Name',
+                'label-phone': 'Phone Number',
+                'label-email': 'Email Address',
+                'label-instagram': 'Instagram ID',
+                'label-location': 'Location/Address',
+                'label-issue': 'Type of Issue',
+                'label-date': 'Preferred Date',
+                'label-time': 'Preferred Time',
+                'label-description': 'Detailed Description',
+                'opt-snake-sighting': 'Snake Sighting',
+                'opt-emergency': 'Emergency',
+                'opt-prevention': 'Prevention Services',
+                'opt-assessment': 'Property Assessment',
+                'opt-morning': 'Morning (6-12)',
+                'opt-afternoon': 'Afternoon (12-6)',
+                'opt-evening': 'Evening (6-10)',
+                'opt-emergency-24': 'Emergency 24/7',
+                'btn-submit': '📱 Send to WhatsApp',
+                'h3-emergency-contact': 'Emergency Contact',
+                'p-emergency-24': 'Available 24/7',
+                'h2-about': 'About Us',
+                'h3-about': 'Professional Snake Management Expert',
+                'p-about-1': 'Professional, humane snake removal services.',
+                'p-about-2': 'Trained in latest safe capture and relocation techniques.',
+                'p-about-3': 'Trusted by thousands of families.',
+                'h3-why-choose': 'Why Choose Us?',
+                'li-professional': '✓ Professional Staff',
+                'li-24-7': '✓ 24/7 Services',
+                'li-humane': '✓ Humane Handling',
+                'li-quick': '✓ Quick Response',
+                'li-affordable': '✓ Affordable Rates',
+                'li-guarantee': '✓ Safety Guarantee',
+                'footer-text': '&copy; 2026 Snake Snatcher Harish. All rights reserved.'
+            },
+            ka: {
+                'langBtn': 'English',
+                'h1-title': 'ಸರ್ಪ ಹೆಚ್ಚಿಕೆ ಹರಿಶ್',
+                'p-subtitle1': 'ವೃತ್ತಿಮಾನ ಸರ್ಪ ಹೆಚ್ಚಿಕೆ ಮತ್ತು ರಕ್ಷಣ ಸೇವೆಗಳು',
+                'p-subtitle2': 'ಸುರಕ್ಷಿತ, ವಿಶ್ವಾಸಾರ್ಹ, ವಿಶೇಷಜ್ಞ ಸರ್ಪ ತೆಗೆಯುವಿಕೆ',
+                'btn-emergency': 'ತುರ್ತು ಸೇವೆಗಾಗಿ ಕರೆ ಮಾಡಿ',
+                'h2-services': 'ನಮ್ಮ ಸೇವೆಗಳು',
+                'service-catch': 'ಸರ್ಪ ಹೆಚ್ಚಿಕೆ',
+                'p-catch': 'ವೃತ್ತಿಮಾನ ಮತ್ತು ನಿರಾಪದ ತೆಗೆಯುವಿಕೆ.',
+                'service-protect': 'ಸರ್ಪ ರಕ್ಷಣ',
+                'p-protect': 'ನಿವಾರಕ ಕ್ರಮಗಳು ಮತ್ತು ರಕ್ಷಣಾ ವ್ಯವಸ್ಥೆಗಳು.',
+                'service-prevent': 'ಸರ್ಪ ತಡೆತಾಣೆ',
+                'p-prevent': 'ವಿಶೇಷಜ್ಞ ಸಲಹೆ ಮತ್ತು ತಡೆತಾಣೆ ಕ್ರಮಗಳು.',
+                'service-assess': 'ಸಂಪತ್ತಿ ಮೂಲ್ಯಮಾಪನ',
+                'p-assess': 'ಸರ್ಪಗಳ ಸಂಭಾವ್ಯ ಪ್ರವೇಶ ಬಿಂದುಗಳ ತಿರೀಕ್ಷಣ.',
+                'service-emergency': 'ತುರ್ತು ಪ್ರತಿಕ್ರಿಯೆ',
+                'p-emergency': '24/7 ತುರ್ತು ಸೇವೆ. ತ್ವರಿತ ಪ್ರತಿಕ್ರಿಯೆ.',
+                'service-education': 'ಶಿಕ್ಷಣ ಮತ್ತು ಜಾಗೃತತೆ',
+                'p-education': 'ಸರ್ಪ ನಡವಳಿಕೆ ಕಾರ್ಯಕ್ರಮಗಳು.',
+                'h2-history': 'ಹರಿಶ್ನ ಇತಿಹಾಸ ಮತ್ತು ಪುರಾವೆ',
+                'h3-experience': 'ಅನುಭವ ಮತ್ತು ಹಿನ್ನೆಲೆ',
+                'p-exp-intro': 'ವೃತ್ತಿಮಾನ ಸರ್ಪ ಹೆಚ್ಚಿಕೆ ಕ್ಷೇತ್ರದಲ್ಲಿ ಒಂದು ದಶಕದ ಅನುಭವ.',
+                'p-exp-detail1': 'ಸುರಕ್ಷಿತ, ಮಾನವೀಯ ಸೇವೆಗಳು.',
+                'strong-achievements': '✓ ಅನುಭವಿ ವೃತ್ತಿಪರರು',
+                'strong-humane': '✓ ಮಾನವೀಯ ಸರ್ಪ ತೆಗೆಯುವಿಕೆ',
+                'strong-emergency': '✓ 24/7 ತುರ್ತು ಸೇವೆ',
+                'strong-trusted': '✓ 1000+ ಕುಟುಂಬಗಳಿಂದ ವಿಶ್ವಾಸಿತ',
+                'h3-videos': 'ಸೇವೆಗಳ ವೀಡಿಯೋ ಪುರಾವೆ',
+                'v-title1': 'ಸರ್ಪ ತೆಗೆಯುವಿಕೆ',
+                'v-desc1': 'ಮನೆಯಿಂದ ಸುರಕ್ಷಿತ ತೆಗೆಯುವಿಕೆ',
+                'v-title2': 'ವೃತ್ತಿಮಾನ ನಿರ್ವಹಣ',
+                'v-desc2': 'ವಿಶೇಷಜ್ಞ ಸರ್ಪ ಹೆಚ್ಚಿಕೆ ತಂತ್ರ',
+                'v-title3': 'ಸುರಕ್ಷಿತ ಸ್ಥಳಾಂತರ',
+                'v-desc3': 'ನೈಸರ್ಗಿಕ ವಾಸಸ್ಥಾನದಲ್ಲಿ ಬಿಡುವಿಕೆ',
+                'h3-testimonials': 'ಗ್ರಾಹಕ ಬರಹಗಳು',
+                'h2-snakes': 'ಭಾರತೀಯ ಸರ್ಪಗಳ ಮಾಹಿತಿ',
+                'h3-news': 'ಸರ್ಪ ಕಚೆದೆ ಸುದ್ದಿ ಮತ್ತು ಅಂಕಿ ಅಂಶಗಳು',
+                'news-1-title': '⚠️ ಸರ್ಪ ಕಚೆದೆ ಸಾವು',
+                'news-2-title': '🏥 ಚಿಕಿತ್ಸೆ ನವೀಕರಣ',
+                'news-3-title': '📊 ಸುರಕ್ಷತೆ ಅಂಕಿ ಅಂಶಗಳು',
+                'h3-law': 'ಭಾರತೀಯ ವನ್ಯಜೀವನ ಕಾನೂನು',
+                'h4-law1': '🛡️ ವನ್ಯಜೀವನ ರಕ್ಷಣಾ ಕಾಯಿದೆ',
+                'p-law1': 'ಸರ್ಪವನ್ನು ಕೊಲ್ಲುವುದು ಅಪರಾಧ. ಸುರಕ್ಷಿತ ಸ್ಥಳಾಂತರ.',
+                'h4-law2': '⚖️ ಕಾನೂನುತಂತ್ರ ಜವಾಬ್ದಾರಿ',
+                'p-law2': 'ವೃತ್ತಿಮಾನ ಸೇವೆ ರಕ್ಷಾ ಪ್ರದಾನ ಮಾಡುತ್ತೆ.',
+                'h4-law3': '🏥 ವೈದ್ಯಕೀಯ ಪ್ರೋಟೋಕಾಲ್',
+                'p-law3': '30 ನಿಮಿಷಗಳಲ್ಲಿ ವರದಿ ಮಾಡಿ. ಮುಕ್ತ ವಿಷ-ವಿರೋಧಕ.',
+                'h4-law4': '📱 ಪ್ರಥಮ ಚಿಕಿತ್ಸೆ',
+                'p-law4': 'ಆಭರಣ ತೆಗೆಯಿ. ಸ್ಥಿರವಾಗಿ ಇಡಿ. ಆಸ್ಪತ್ರೆಗೆ ಹೋಗಿ.',
+                'h2-booking': 'ನಿಮ್ಮ ಸೇವೆಯನ್ನು ಬುಕ್ ಮಾಡಿ',
+                'label-name': 'ಪೂರ್ಣ ಹೆಸರು',
+                'label-phone': 'ಫೋನ್ ಸಂಖ್ಯೆ',
+                'label-email': 'ಇಮೇಲ್ ವಿಳಾಸ',
+                'label-instagram': 'ಇನ್‍ಸ್ಟಾಗ್ರಾಮ್ ID',
+                'label-location': 'ಸ್ಥಳ/ವಿಳಾಸ',
+                'label-issue': 'ಸಮಸ್ಯೆಯ ಪ್ರಕಾರ',
+                'label-date': 'ಆದ್ಯತೆ ದಿನಾಂಕ',
+                'label-time': 'ಆದ್ಯತೆ ಸಮಯ',
+                'label-description': 'ವಿವರವಾದ ವರ್ಣನೆ',
+                'opt-snake-sighting': 'ಸರ್ಪ ದೃಷ್ಟಿ',
+                'opt-emergency': 'ತುರ್ತು',
+                'opt-prevention': 'ತಡೆತಾಣೆ ಸೇವೆಗಳು',
+                'opt-assessment': 'ಸಂಪತ್ತಿ ಮೂಲ್ಯಮಾಪನ',
+                'opt-morning': 'ಬೆಳಿಗ್ಗೆ (6-12)',
+                'opt-afternoon': 'ಮಧ್ಯಾಹ್ನ (12-6)',
+                'opt-evening': 'ಸಂಜೆ (6-10)',
+                'opt-emergency-24': 'ತುರ್ತು 24/7',
+                'btn-submit': '📱 ವಾಟ್ಸ್ಅ್ಯಾಪ್ಗೆ ಕಳುಹಿಸಿ',
+                'h3-emergency-contact': 'ತುರ್ತು ಸಂಪರ್ಕ',
+                'p-emergency-24': '24/7 ಲಭ್ಯ',
+                'h2-about': 'ನಮ್ಮ ಬಗ್ಗೆ',
+                'h3-about': 'ವೃತ್ತಿಮಾನ ಸರ್ಪ ನಿರ್ವಹಣ ತಜ್ಞ',
+                'p-about-1': 'ವೃತ್ತಿಮಾನ ಮತ್ತು ಮಾನವೀಯ ಸೇವೆಗಳು.',
+                'p-about-2': 'ಆಧುನಿಕ ತಂತ್ರಗಳಲ್ಲಿ ತರಬೇತಿ ಪ್ರಾಪ್ತ.',
+                'p-about-3': 'ಸಾವಿರಕ್ಕೂ ಹೆಚ್ಚು ಕುಟುಂಬಗಳಿಂದ ವಿಶ್ವಾಸಿತ.',
+                'h3-why-choose': 'ನಮ್ಮನ್ನು ಏಕೆ ಆಯ್ಕೆ ಮಾಡಿ?',
+                'li-professional': '✓ ವೃತ್ತಿಮಾನ ಸಿಬ್ಬಂದಿ',
+                'li-24-7': '✓ 24/7 ಸೇವೆಗಳು',
+                'li-humane': '✓ ಮಾನವೀಯ ನಿರ್ವಹಣೆ',
+                'li-quick': '✓ ತ್ವರಿತ ಪ್ರತಿಕ್ರಿಯೆ',
+                'li-affordable': '✓ ಸಾಧ್ಯವಿರುವ ದರಗಳು',
+                'li-guarantee': '✓ ಸುರಕ್ಷತೆ ಮಾಹಿತಿ',
+                'footer-text': '&copy; 2026 Snake Snatcher Harish. ಎಲ್ಲಾ ಅಧಿಕಾರಗಳು ಕಾಯ್ದಿರಿತ.'
+            }
+        };
+        
+        function renderSnakes() {
+            const grid = document.getElementById('snakeGrid');
+            grid.innerHTML = snakes.map((snake, i) => `
+                <div class="snake-card" style="--index: ${i}">
+                    <img src="${snake.image}" alt="${snake.name}" class="snake-image">
+                    <div class="snake-header">
+                        <h3><span class="snake-icon">🐍</span> ${snake.name}</h3>
+                        <div class="danger-level ${snake.dangerClass}">${snake.danger}</div>
+                    </div>
+                    <div class="snake-content">
+                        <div class="snake-info">
+                            <span class="snake-label">Scientific:</span> ${snake.scientific}
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Kannada:</span> ${snake.kannada}
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Color:</span> ${snake.color}
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Length:</span> ${snake.length}
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Info:</span> ${snake.info}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        renderSnakes();
+        
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ka' : 'en';
+            updatePageLanguage();
+        }
+        
+        function updatePageLanguage() {
+            const trans = translations[currentLanguage];
+            for (let key in trans) {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = trans[key];
+                }
+            }
+        }
+        
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+        
+        function handleBooking(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const instagram = document.getElementById('instagram').value;
+            const location = document.getElementById('location').value;
+            const issue = document.getElementById('issue').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const description = document.getElementById('description').value;
+            
+            const message = `Hello Harish! 🐍\n\nI am ${name} and would like to book your snake service.\n\n📱 Phone: ${phone}\n📧 Email: ${email}\n📸 Instagram: ${instagram || 'Not provided'}\n📍 Location: ${location}\n🚨 Issue: ${issue}\n📅 Date: ${date}\n⏰ Time: ${time}\n\nDescription: ${description}\n\nPlease confirm the booking.`;
+            
+            const url = `https://wa.me/919945543806?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+            
+            alert(currentLanguage === 'en' ? 'Opening WhatsApp!' : 'WhatsApp ತೆರೆಯುತ್ತಿದೆ!');
+            event.target.reset();
+            return false;
+        }
+        
+        // Gallery Functions
+        function initializeGallery() {
+            const snakeGrid = document.getElementById('snakeGrid');
+            snakeGrid.innerHTML = '';
+            
+            snakes.forEach((snake, index) => {
+                const item = document.createElement('div');
+                item.className = 'snake-card';
+                item.style.setProperty('--index', index);
+                item.innerHTML = `
+                    <div class="snake-header">
+                        <h3>${snake.name}</h3>
+                        <span class="danger-level ${snake.dangerClass}">${snake.danger}</span>
+                    </div>
+                    <img src="${snake.image}" alt="${snake.name}" style="width:100%; height:250px; object-fit:cover; cursor:pointer;" onclick="openModal('${snake.image}', '${snake.name}', '${snake.info}')">
+                    <div class="snake-content">
+                        <div class="snake-info">
+                            <span class="snake-label">Scientific:</span>
+                            <span>${snake.scientific}</span>
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Kannada:</span>
+                            <span>${snake.kannada}</span>
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Color:</span>
+                            <span>${snake.color}</span>
+                        </div>
+                        <div class="snake-info">
+                            <span class="snake-label">Length:</span>
+                            <span>${snake.length}</span>
+                        </div>
+                        <div class="snake-info" style="margin-top: 10px;">
+                            <p style="font-size: 13px; color: #666; line-height: 1.6;">${snake.info}</p>
+                        </div>
+                    </div>
+                `;
+                snakeGrid.appendChild(item);
+            });
+        }
+        
+        function openModal(imageSrc, snakeName, info) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalInfo = document.getElementById('modalInfo');
+            
+            modalImage.src = imageSrc;
+            modalImage.alt = snakeName;
+            modalInfo.innerHTML = `<h2>${snakeName}</h2><p>${info}</p>`;
+            modal.classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                modal.classList.remove('show');
+            }
+        }
+        
+        // Initialize gallery on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGallery();
+        });
+    </script>
+</body>
+</html>
